@@ -71,12 +71,27 @@ class ApiAuthenticationTest extends TestCase
 
     public function test_error_handling(): void
     {
-        $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => null, 'secret_key' => $this->secretKey]);
+        $dataProvider = [
+            'apiKeyNull'=> [
+                'data' => ['api_key' => null, 'secret_key' => $this->secretKey],
+                'expect' => ['message' => 'APIKEY required!']
+            ],
+            'secretKeyNull'=> [
+                'data' => ['api_key' => $this->apiKey, 'secret_key' => null],
+                'expect' => ['message' => 'SECRETKEY required!']
+            ],
+        ];
+        
+        $response = $this->postJson('/api/app/users', data: [], headers: $dataProvider['apiKeyNull']['data']);
 
         $response
             ->assertStatus(401)
-            ->assertJson([
-                'message' => 'APIKEY and SECRETKEY required!',
-            ]);
+            ->assertJson($dataProvider['apiKeyNull']['expect']);
+
+        $response = $this->postJson('/api/app/users', data: [], headers: $dataProvider['secretKeyNull']['data']);
+
+        $response
+            ->assertStatus(401)
+            ->assertJson($dataProvider['secretKeyNull']['expect']);
     }
 }

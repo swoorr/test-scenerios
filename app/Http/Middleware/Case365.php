@@ -20,13 +20,13 @@ class Case365
         $apiKey = $request->header('api_key');
         $secretKey = $request->header('secret_key');
 
-        // check if api_key and secret_key are not empty
-        if(empty($apiKey) || empty($secretKey))
-            return response()->json(['status' => false, 'message' => 'APIKEY and SECRETKEY required!'], 401);
+        if (empty($apiKey)) return response()->json(['status' => false, 'message' => 'APIKEY required!'], 401);
+        if (empty($secretKey)) return response()->json(['status' => false, 'message' => 'SECRETKEY required!'], 401);
 
         // check if api_key and secret_key are valid from User Model
-        if(!User::where('api_key', $apiKey)->where('secret_key', $secretKey)->exists())
+        if (!User::where('api_key', $apiKey)->where('secret_key', $secretKey)->exists()) {
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+        }
 
         // set auth user
         auth()->setUser(User::where('api_key', $apiKey)->where('secret_key', $secretKey)->first());
