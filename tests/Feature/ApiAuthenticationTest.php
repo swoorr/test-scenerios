@@ -16,14 +16,9 @@ class ApiAuthenticationTest extends TestCase
     {
         parent::setUp();
 
-
-        // create 10 users
-        User::factory()->count(10)->create();
-
-        $user = User::first();
+        $user = User::factory()->create();
         $this->apiKey = $user->api_key;
         $this->secretKey = $user->secret_key;
-
     }
 
     public function test_auth(): void
@@ -56,6 +51,8 @@ class ApiAuthenticationTest extends TestCase
 
     public function test_api_response_data(): void
     {
+        User::factory()->count(9)->create();
+
         $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
