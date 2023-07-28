@@ -11,6 +11,7 @@ class ApiAuthenticationTest extends TestCase
     use RefreshDatabase;
     private mixed $apiKey = null;
     private mixed $secretKey = null;
+    private array $header = [];
 
     public function setUp(): void
     {
@@ -19,11 +20,13 @@ class ApiAuthenticationTest extends TestCase
         $user = User::factory()->create();
         $this->apiKey = $user->api_key;
         $this->secretKey = $user->secret_key;
+
+        $this->header = ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey];
     }
 
     public function test_auth(): void
     {
-        $response = $this->postJson('/api/authenticate', ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+        $response = $this->postJson('/api/authenticate', $this->header);
 
         $response
             ->assertSuccessful();
@@ -33,7 +36,7 @@ class ApiAuthenticationTest extends TestCase
 
     public function test_users(): void
     {
-        $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+        $response = $this->get('/api/app/users', $this->header);
 
         $response
             ->assertSuccessful();
@@ -43,7 +46,7 @@ class ApiAuthenticationTest extends TestCase
     public function test_users_rate_limit(): void
     {
         for ($i = 0; $i < 70; $i++) {
-            $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+            $response = $this->get('/api/app/users', $this->header);
         }
 
         $response->assertStatus(429);
@@ -53,7 +56,7 @@ class ApiAuthenticationTest extends TestCase
     {
         User::factory()->count(9)->create();
 
-        $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+        $response = $this->get('/api/app/users', $this->header);
 
         $response
             ->assertSuccessful()
@@ -81,14 +84,14 @@ class ApiAuthenticationTest extends TestCase
                 'expect' => ['message' => 'SECRETKEY required!']
             ],
         ];
-        
-        $response = $this->postJson('/api/app/users', data: [], headers: $dataProvider['apiKeyNull']['data']);
+
+        $response = $this->get('/api/app/users', $dataProvider['apiKeyNull']['data']);
 
         $response
             ->assertStatus(401)
             ->assertJson($dataProvider['apiKeyNull']['expect']);
 
-        $response = $this->postJson('/api/app/users', data: [], headers: $dataProvider['secretKeyNull']['data']);
+        $response = $this->get('/api/app/users', $dataProvider['secretKeyNull']['data']);
 
         $response
             ->assertStatus(401)

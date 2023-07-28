@@ -17,7 +17,7 @@ Route::post('/authenticate', [\App\Http\Controllers\ApiController::class, 'authe
 
 Route::middleware('auth')->prefix('/app')->group(function () {
     Route::middleware('throttle:60,1')->group(function () {
-        Route::post('/users', [\App\Http\Controllers\ApiController::class, 'users']);
+        Route::get('/users', [\App\Http\Controllers\ApiController::class, 'users']);
     });
 });
 
