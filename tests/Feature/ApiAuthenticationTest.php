@@ -31,10 +31,8 @@ class ApiAuthenticationTest extends TestCase
         $response = $this->postJson('/api/authenticate', ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
-            ->assertSuccessful()
-            ->assertJson([
-                'status' => true,
-            ]);
+            ->assertSuccessful();
+
     }
 
 
@@ -43,10 +41,7 @@ class ApiAuthenticationTest extends TestCase
         $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
-            ->assertSuccessful()
-            ->assertJson([
-                'status' => true,
-            ]);
+            ->assertSuccessful();
 
     }
 
@@ -84,7 +79,6 @@ class ApiAuthenticationTest extends TestCase
         $response
             ->assertStatus(401)
             ->assertJson([
-                'status' => false,
                 'message' => 'APIKEY and SECRETKEY required!',
             ]);
     }

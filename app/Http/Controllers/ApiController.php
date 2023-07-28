@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 
 class ApiController extends Controller
 {
@@ -27,14 +28,14 @@ class ApiController extends Controller
 
         if ($attempt) {
             auth()->login($attempt);
-
-            return response()->json(['status' => true, 'message' => 'Authenticated']);
+            return new JsonResponse(['message' => 'Authenticated']);
         }
-        return response()->json(['status' => false, 'message' => 'Invalid credentials']);
+
+        return new JsonResponse(['message' => 'Unauthenticated'], 401);
     }
 
     public function users(): \Illuminate\Http\JsonResponse
     {
-        return response()->json(['status' => true, 'message' => 'Authenticated', 'data' => User::all()]);
+        return new JsonResponse(['message' => 'Authenticated', 'data' => User::all()]);
     }
 }
