@@ -71,7 +71,7 @@ class ApiAuthenticationTest extends TestCase
                 'data' => [
                     '*' => [
                         'id',
-                        'name',
+                        'name',g
                         'email'
                     ]
                 ]
@@ -86,7 +86,7 @@ class ApiAuthenticationTest extends TestCase
             ->assertStatus(401)
             ->assertJson([
                 'status' => false,
-                'message' => 'Unauthorized',
+                'message' => 'APIKEY and SECRETKEY required!',
             ]);
     }
 }
