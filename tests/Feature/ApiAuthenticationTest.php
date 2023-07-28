@@ -71,7 +71,7 @@ class ApiAuthenticationTest extends TestCase
                 'data' => [
                     '*' => [
                         'id',
-                        'name',g
+                        'name',
                         'email'
                     ]
                 ]
