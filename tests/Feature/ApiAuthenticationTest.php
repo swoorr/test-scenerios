@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ApiAuthenticationTest extends TestCase
 {
+    use RefreshDatabase;
     private mixed $apiKey = null;
     private mixed $secretKey = null;
 
@@ -14,21 +16,22 @@ class ApiAuthenticationTest extends TestCase
     {
         parent::setUp();
 
-        $user = User::factory()->create();
+
+        // create 10 users
+        User::factory()->count(10)->create();
+
+        $user = User::first();
         $this->apiKey = $user->api_key;
         $this->secretKey = $user->secret_key;
+
     }
 
-
-    /**
-     * A basic feature test example.
-     */
     public function test_auth(): void
     {
         $response = $this->postJson('/api/authenticate', ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
-            ->assertStatus(200)
+            ->assertSuccessful()
             ->assertJson([
                 'status' => true,
             ]);
@@ -37,31 +40,32 @@ class ApiAuthenticationTest extends TestCase
 
     public function test_users(): void
     {
-        $response = $this->post('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+        $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
-            ->assertStatus(200)
+            ->assertSuccessful()
             ->assertJson([
                 'status' => true,
             ]);
 
     }
 
-    public function test_users_rate_limit()
+    public function test_users_rate_limit(): void
     {
         for ($i = 0; $i < 70; $i++) {
-            $response = $this->post('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+            $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
         }
 
         $response->assertStatus(429);
     }
 
-    public function testApiResponseData()
+    public function test_api_response_data(): void
     {
-        $response = $this->post('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
+        $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
-            ->assertStatus(200)
+            ->assertSuccessful()
+            ->assertJsonCount(10, 'data')
             ->assertJsonStructure([
                 'data' => [
                     '*' => [
@@ -73,9 +77,9 @@ class ApiAuthenticationTest extends TestCase
             ]);
     }
 
-    public function test_error_handling()
+    public function test_error_handling(): void
     {
-        $response = $this->post('/api/app/users', data: [], headers: ['api_key' => null, 'secret_key' => $this->secretKey]);
+        $response = $this->postJson('/api/app/users', data: [], headers: ['api_key' => null, 'secret_key' => $this->secretKey]);
 
         $response
             ->assertStatus(401)
