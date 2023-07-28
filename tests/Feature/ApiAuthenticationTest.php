@@ -7,8 +7,8 @@ use Tests\TestCase;
 
 class ApiAuthenticationTest extends TestCase
 {
-    private $apiKey = null;
-    private $secretKey = null;
+    private mixed $apiKey = null;
+    private mixed $secretKey = null;
 
     public function setUp(): void
     {
@@ -17,7 +17,6 @@ class ApiAuthenticationTest extends TestCase
         $user = User::factory()->create();
         $this->apiKey = $user->api_key;
         $this->secretKey = $user->secret_key;
-
     }
 
 
@@ -26,8 +25,6 @@ class ApiAuthenticationTest extends TestCase
      */
     public function test_auth(): void
     {
-
-
         $response = $this->postJson('/api/authenticate', ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
 
         $response
@@ -40,9 +37,7 @@ class ApiAuthenticationTest extends TestCase
 
     public function test_users(): void
     {
-
         $response = $this->post('/api/app/users', data: [], headers: ['api_key' => $this->apiKey, 'secret_key' => $this->secretKey]);
-
 
         $response
             ->assertStatus(200)
